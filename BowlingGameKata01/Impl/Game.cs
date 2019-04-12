@@ -24,7 +24,7 @@ namespace BowlingGameKata01.Impl
 
 		private void OpenNewFrame()
 		{
-			if (IsFinished())
+			if (IsOver())
 				throw new GameException("Can't hit rolls, game is over!");
 			frames.AddLast(new LinkedListNode<Frame>(new Frame()));
 		}
@@ -36,17 +36,56 @@ namespace BowlingGameKata01.Impl
 
 		public int Score()
 		{
-			var simpleSum = EnumerateFrames()
-				.Select(f => f.Value.HitsSum())
-				.Sum();
+			var simpleSum = SimpleSum();
+			var spareBonus = SpareBonus();
+			var strikeBonus = BonusForStrikes();
+			return simpleSum + spareBonus + strikeBonus;
+		}
 
-			var bonus = EnumerateFrames()
+		private int BonusForStrikes()
+		{
+			var strikeFrames = EnumerateFrames()
+				.Where(f => f.Value.IsStrike());
+
+			var strikeBonuses = strikeFrames
+				.Select(f => HitsFromNext2Frames(f).Take(2).Sum());
+
+			return strikeBonuses
+				.Sum();
+		}
+
+		private IEnumerable<int> HitsFromNext2Frames(LinkedListNode<Frame> frame)
+		{
+			var interestingFrames = new[]
+			{
+				frame.Next,
+				frame.Next?.Next
+			};
+			return interestingFrames
+				.Where(f => f != null)
+				.SelectMany(f => f.Value.Hits());
+		}
+
+		private int SimpleSum()
+		{
+			return EnumerateFrames()
+				.Select(f => f.Value.Hits().Sum())
+				.Sum();
+		}
+
+		private int SpareBonus()
+		{
+			return EnumerateFrames()
 				.Where(f => f.Value.IsSpare())
 				.Select(f => f.Next?.Value.GetHitByIndexOrNull(0))
 				.Where(nextHit => nextHit != null)
 				.Sum() ?? 0;
+		}
 
-			return simpleSum + bonus;
+		public bool IsOver()
+		{
+			return frames.Count == framesCount
+				&& CurrentFrame().IsFinished();
 		}
 
 		private IEnumerable<LinkedListNode<Frame>> EnumerateFrames()
@@ -58,12 +97,6 @@ namespace BowlingGameKata01.Impl
 				yield return current.Next;
 				current = current.Next;
 			}
-		}
-
-		public bool IsFinished()
-		{
-			return frames.Count == framesCount
-				&& CurrentFrame().IsFinished();
 		}
 	}
 }

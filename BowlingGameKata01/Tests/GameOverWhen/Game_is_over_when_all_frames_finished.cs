@@ -12,7 +12,7 @@ namespace BowlingGameKata01.Tests.GameOverWhen
 		public void Game_is_not_finished_when_not_all_frames()
 		{
 			var game = new Game(2);
-			game.IsFinished().Should().BeFalse();
+			game.IsOver().Should().BeFalse();
 		}
 
 		[Test]
@@ -23,7 +23,7 @@ namespace BowlingGameKata01.Tests.GameOverWhen
 			game.Roll(2);
 			game.Roll(1);
 			game.Roll(2);
-			game.IsFinished().Should().BeTrue();
+			game.IsOver().Should().BeTrue();
 		}
 
 		[Test]
