@@ -6,37 +6,34 @@ namespace BowlingGameKata01.Impl
 	public class NotLastFrame : IFrame
 	{
 		private readonly List<int> hits = new List<int>();
-		private static readonly int MaxHitsCount = 2;
-		private static readonly int MaxHitsSum = 10;
+		private readonly GameOptions gameOptions;
+
+		public NotLastFrame(GameOptions gameOptions)
+		{
+			this.gameOptions = gameOptions;
+		}
 
 		public void PushHit(int hitCount)
 		{
-			if (IsFinished())
-				throw new GameException("Can't push hits to current frame! Frame is finished!");
 			hits.Add(hitCount);
 		}
 
 		public bool IsFinished()
 		{
 			return IsStrike()
-				|| hits.Count == MaxHitsCount;
+				|| hits.Count == gameOptions.MaxAttemptsInFrame;
 		}
 
 		public bool IsStrike()
 		{
 			return hits.Count == 1
-				&& hits.First() == MaxHitsSum;
+				&& hits.First() == gameOptions.TotalHitsPerFrame;
 		}
 
 		public bool IsSpare()
 		{
 			return !IsStrike()
-				&& hits.Sum() == MaxHitsSum;
-		}
-
-		public int GetHitByIndexOrNull(int i)
-		{
-			return hits.ToArray()[i];
+				&& hits.Sum() == gameOptions.TotalHitsPerFrame;
 		}
 
 		public IEnumerable<int> Hits()

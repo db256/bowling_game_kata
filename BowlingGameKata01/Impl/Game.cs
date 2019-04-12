@@ -1,21 +1,25 @@
 using System.Collections.Generic;
 using System.Linq;
+using BowlingGameKata01.Framework.Extensions;
 
 namespace BowlingGameKata01.Impl
 {
 	public class Game
 	{
 		private readonly LinkedList<IFrame> frames = new LinkedList<IFrame>();
-		private readonly int framesCountInGame;
+		private readonly GameOptions gameOptions;
 
-		public Game(int framesCountInGame)
+		public Game(GameOptions gameOptions)
 		{
-			this.framesCountInGame = framesCountInGame;
+			this.gameOptions = gameOptions;
 			OpenNewFrame();
 		}
 
 		public void Roll(int hitCount)
 		{
+			if (IsOver())
+				throw new GameOverException();
+
 			if (CurrentFrame().IsFinished())
 				OpenNewFrame();
 
@@ -24,17 +28,15 @@ namespace BowlingGameKata01.Impl
 
 		private void OpenNewFrame()
 		{
-			if (IsOver())
-				throw new GameException("Can't hit rolls, game is over!");
-			var frame = CreateNewFrame();
+			var frame = ProvideNewFrame();
 			frames.AddLast(new LinkedListNode<IFrame>(frame));
 		}
 
-		private IFrame CreateNewFrame()
+		private IFrame ProvideNewFrame()
 		{
-			if (frames.Count + 1 >= framesCountInGame)
-				return new LastFrame();
-			return new NotLastFrame();
+			if (frames.Count + 1 >= gameOptions.FramesCount)
+				return new LastFrame(gameOptions);
+			return new NotLastFrame(gameOptions);
 		}
 
 		private IFrame CurrentFrame()
@@ -62,6 +64,11 @@ namespace BowlingGameKata01.Impl
 				.Sum();
 		}
 
+		private IEnumerable<LinkedListNode<IFrame>> EnumerateFrames()
+		{
+			return frames.ToNodes();
+		}
+
 		private IEnumerable<int> HitsFromNext2Frames(LinkedListNode<IFrame> frame)
 		{
 			var interestingFrames = new[]
@@ -85,26 +92,15 @@ namespace BowlingGameKata01.Impl
 		{
 			return EnumerateFrames()
 				.Where(f => f.Value.IsSpare())
-				.Select(f => f.Next?.Value.GetHitByIndexOrNull(0))
+				.Select(f => f.Next?.Value.Hits().First())
 				.Where(nextHit => nextHit != null)
 				.Sum() ?? 0;
 		}
 
 		public bool IsOver()
 		{
-			return frames.Count == framesCountInGame
+			return frames.Count == gameOptions.FramesCount
 				&& CurrentFrame().IsFinished();
-		}
-
-		private IEnumerable<LinkedListNode<IFrame>> EnumerateFrames()
-		{
-			var current = frames.First;
-			yield return current;
-			while (current.Next != null)
-			{
-				yield return current.Next;
-				current = current.Next;
-			}
 		}
 	}
 }

@@ -6,6 +6,12 @@ namespace BowlingGameKata01.Impl
 	public class LastFrame : IFrame
 	{
 		private readonly List<int> hits = new List<int>();
+		private readonly GameOptions gameOptions;
+
+		public LastFrame(GameOptions gameOptions)
+		{
+			this.gameOptions = gameOptions;
+		}
 
 		public void PushHit(int hitCount)
 		{
@@ -19,10 +25,10 @@ namespace BowlingGameKata01.Impl
 
 		private int AllowedHitsCount()
 		{
-			var firstHitIsStrike = hits.FirstOrDefault() == 10;
+			var firstHitIsStrike = hits.FirstOrDefault() == gameOptions.TotalHitsPerFrame;
 			return firstHitIsStrike
-				? 3
-				: 2;
+				? gameOptions.MaxAttemptsInLastBonusStrikeFrame
+				: gameOptions.MaxAttemptsInFrame;
 		}
 
 		public bool IsStrike()
@@ -33,11 +39,6 @@ namespace BowlingGameKata01.Impl
 		public bool IsSpare()
 		{
 			return false;
-		}
-
-		public int GetHitByIndexOrNull(int i)
-		{
-			return hits[i];
 		}
 
 		public IEnumerable<int> Hits()

@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using BowlingGameKata01.Impl;
-using FluentAssertions;
 using NUnit.Framework;
 
 namespace BowlingGameKata01.Tests.ScoreCalculation
@@ -11,14 +9,7 @@ namespace BowlingGameKata01.Tests.ScoreCalculation
 		[TestCaseSource(nameof(TestCases))]
 		public void Score_is_sum_of_attempts(TestCase testCase)
 		{
-			var game = new Game(testCase.FramesCount);
-
-			foreach (var attempt in testCase.Attempts)
-			{
-				game.Roll(attempt);
-			}
-
-			game.Score().Should().Be(testCase.ExpectedScore);
+			testCase.ScoreShouldBeCorrectAfterPlay();
 		}
 
 		private static IEnumerable<TestCase> TestCases()

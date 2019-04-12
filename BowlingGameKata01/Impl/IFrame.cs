@@ -8,7 +8,6 @@ namespace BowlingGameKata01.Impl
 		bool IsFinished();
 		bool IsStrike();
 		bool IsSpare();
-		int GetHitByIndexOrNull(int i);
 		IEnumerable<int> Hits();
 	}
 }

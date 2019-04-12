@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using BowlingGameKata01.Impl;
-using FluentAssertions;
 using NUnit.Framework;
 
 namespace BowlingGameKata01.Tests.ScoreCalculation
@@ -11,14 +9,7 @@ namespace BowlingGameKata01.Tests.ScoreCalculation
 		[TestCaseSource(nameof(TestCases))]
 		public void Spare_frame_add_bonus_equal_next_1_hit(TestCase testCase)
 		{
-			var game = new Game(testCase.FramesCount);
-
-			foreach (var attempt in testCase.Attempts)
-			{
-				game.Roll(attempt);
-			}
-
-			game.Score().Should().Be(testCase.SimpleSum + testCase.ExpectedBonusScore);
+			testCase.ScoreShouldBeCorrectAfterPlay();
 		}
 
 		private static IEnumerable<TestCase> TestCases()

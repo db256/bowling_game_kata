@@ -13,20 +13,13 @@ namespace BowlingGameKata01.Tests.ScoreCalculation
 		[TestCaseSource(nameof(TestCases))]
 		public void Strike_frame_add_bonus_equal_sum_next_2_hits(TestCase testCase)
 		{
-			var game = new Game(testCase.FramesCount);
-
-			foreach (var attempt in testCase.Attempts)
-			{
-				game.Roll(attempt);
-			}
-
-			game.Score().Should().Be(testCase.SimpleSum + testCase.ExpectedBonusScore);
+			testCase.ScoreShouldBeCorrectAfterPlay();
 		}
 
 		[Test]
 		public void When_all_strikes_score_should_be_correct()
 		{
-			var game = new Game(10);
+			var game = new Game(new GameOptions());
 			var bonusHits = 2;
 
 			foreach (var attempt in Enumerable.Repeat(10, 10 + bonusHits))
@@ -40,7 +33,7 @@ namespace BowlingGameKata01.Tests.ScoreCalculation
 		[Test]
 		public void When_all_strikes_throw_when_roll_after_game_over()
 		{
-			var game = new Game(10);
+			var game = new Game(new GameOptions());
 			var bonusHits = 2;
 			foreach (var attempt in Enumerable.Repeat(10, 10 + bonusHits))
 			{
@@ -49,8 +42,7 @@ namespace BowlingGameKata01.Tests.ScoreCalculation
 
 			Action act = () => game.Roll(10);
 
-			act.Should().ThrowExactly<GameException>()
-				.WithMessage("Can't hit rolls, game is over!");
+			act.Should().ThrowExactly<GameOverException>();
 		}
 
 		private static IEnumerable<TestCase> TestCases()
@@ -102,6 +94,33 @@ namespace BowlingGameKata01.Tests.ScoreCalculation
 					10 + 7
 					+ 7 + 3
 					+ 4
+			};
+
+			yield return new TestCase
+			{
+				Attempts = new[]
+				{
+					10,
+					10,
+					7, 3,
+					4, 5
+				},
+				ExpectedBonusScore =
+					10 + 7
+					+ 7 + 3
+					+ 4
+			};
+
+			yield return new TestCase
+			{
+				Attempts = new[]
+				{
+					1, 9, 3, 3,
+					2, 0, 10, 10,
+					3, 7, 5, 4,
+					10, 10, 10, 9, 1
+				},
+				ExpectedScore = 167
 			};
 		}
 	}
