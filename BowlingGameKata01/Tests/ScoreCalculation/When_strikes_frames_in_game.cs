@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using BowlingGameKata01.Impl;
 using FluentAssertions;
 using NUnit.Framework;
@@ -19,6 +21,36 @@ namespace BowlingGameKata01.Tests.ScoreCalculation
 			}
 
 			game.Score().Should().Be(testCase.SimpleSum + testCase.ExpectedBonusScore);
+		}
+
+		[Test]
+		public void When_all_strikes_score_should_be_correct()
+		{
+			var game = new Game(10);
+			var bonusHits = 2;
+
+			foreach (var attempt in Enumerable.Repeat(10, 10 + bonusHits))
+			{
+				game.Roll(attempt);
+			}
+
+			game.Score().Should().Be(300);
+		}
+
+		[Test]
+		public void When_all_strikes_throw_when_roll_after_game_over()
+		{
+			var game = new Game(10);
+			var bonusHits = 2;
+			foreach (var attempt in Enumerable.Repeat(10, 10 + bonusHits))
+			{
+				game.Roll(attempt);
+			}
+
+			Action act = () => game.Roll(10);
+
+			act.Should().ThrowExactly<GameException>()
+				.WithMessage("Can't hit rolls, game is over!");
 		}
 
 		private static IEnumerable<TestCase> TestCases()
@@ -55,6 +87,21 @@ namespace BowlingGameKata01.Tests.ScoreCalculation
 					7, 3
 				},
 				ExpectedBonusScore = 10 + 7 + 7 + 3
+			};
+
+			yield return new TestCase
+			{
+				Attempts = new[]
+				{
+					10,
+					10,
+					7, 3,
+					4, 5
+				},
+				ExpectedBonusScore =
+					10 + 7
+					+ 7 + 3
+					+ 4
 			};
 		}
 	}

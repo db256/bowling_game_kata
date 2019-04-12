@@ -5,12 +5,12 @@ namespace BowlingGameKata01.Impl
 {
 	public class Game
 	{
-		private readonly LinkedList<Frame> frames = new LinkedList<Frame>();
-		private readonly int framesCount;
+		private readonly LinkedList<IFrame> frames = new LinkedList<IFrame>();
+		private readonly int framesCountInGame;
 
-		public Game(int framesCount)
+		public Game(int framesCountInGame)
 		{
-			this.framesCount = framesCount;
+			this.framesCountInGame = framesCountInGame;
 			OpenNewFrame();
 		}
 
@@ -26,10 +26,18 @@ namespace BowlingGameKata01.Impl
 		{
 			if (IsOver())
 				throw new GameException("Can't hit rolls, game is over!");
-			frames.AddLast(new LinkedListNode<Frame>(new Frame()));
+			var frame = CreateNewFrame();
+			frames.AddLast(new LinkedListNode<IFrame>(frame));
 		}
 
-		private Frame CurrentFrame()
+		private IFrame CreateNewFrame()
+		{
+			if (frames.Count + 1 >= framesCountInGame)
+				return new LastFrame();
+			return new NotLastFrame();
+		}
+
+		private IFrame CurrentFrame()
 		{
 			return frames.Last.Value;
 		}
@@ -54,7 +62,7 @@ namespace BowlingGameKata01.Impl
 				.Sum();
 		}
 
-		private IEnumerable<int> HitsFromNext2Frames(LinkedListNode<Frame> frame)
+		private IEnumerable<int> HitsFromNext2Frames(LinkedListNode<IFrame> frame)
 		{
 			var interestingFrames = new[]
 			{
@@ -84,11 +92,11 @@ namespace BowlingGameKata01.Impl
 
 		public bool IsOver()
 		{
-			return frames.Count == framesCount
+			return frames.Count == framesCountInGame
 				&& CurrentFrame().IsFinished();
 		}
 
-		private IEnumerable<LinkedListNode<Frame>> EnumerateFrames()
+		private IEnumerable<LinkedListNode<IFrame>> EnumerateFrames()
 		{
 			var current = frames.First;
 			yield return current;
