@@ -6,10 +6,10 @@ using NUnit.Framework;
 namespace BowlingGameKata01.Tests.ScoreCalculation
 {
 	[TestFixture]
-	public class When_simple_frames_in_game_only
+	public class When_spare_frames_in_game
 	{
 		[TestCaseSource(nameof(TestCases))]
-		public void Score_is_sum_of_attempts(TestCase testCase)
+		public void Spare_frame_add_bonus_equal_next_1_hit(TestCase testCase)
 		{
 			var game = new Game(testCase.FramesCount);
 
@@ -18,26 +18,42 @@ namespace BowlingGameKata01.Tests.ScoreCalculation
 				game.Roll(attempt);
 			}
 
-			game.Score().Should().Be(testCase.ExpectedScore);
+			game.Score().Should().Be(testCase.SimpleSum + testCase.ExpectedBonusScore);
 		}
 
 		private static IEnumerable<TestCase> TestCases()
 		{
 			yield return new TestCase
 			{
-				Attempts = new[] { 1, 7 },
-				ExpectedScore = 8
+				Attempts = new[]
+				{
+					1, 9,
+					0, 3,
+					1, 3
+				},
+				ExpectedBonusScore = 0
 			};
 
 			yield return new TestCase
 			{
 				Attempts = new[]
 				{
+					0, 10,
 					1, 2,
-					0, 9,
-					2, 2
+					1, 2,
 				},
-				ExpectedScore = 16
+				ExpectedBonusScore = 1
+			};
+
+			yield return new TestCase
+			{
+				Attempts = new[]
+				{
+					1, 9,
+					4, 6,
+					5, 3
+				},
+				ExpectedBonusScore = 4 + 5
 			};
 		}
 	}

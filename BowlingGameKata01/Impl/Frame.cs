@@ -25,5 +25,15 @@ namespace BowlingGameKata01.Impl
 		{
 			return hits.Sum();
 		}
+
+		public bool IsSpare()
+		{
+			return hits.Sum() == 10;
+		}
+
+		public int GetHitByIndexOrNull(int i)
+		{
+			return hits.ToArray()[i];
+		}
 	}
 }
